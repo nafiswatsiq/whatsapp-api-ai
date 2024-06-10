@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
     "start:dev": "nodemon --ignore data/ src/server.ts",
     "dev": "nodemon --exec ts-node --ignore data/ src/server.ts",
     "lint": "eslint . - ext .ts"

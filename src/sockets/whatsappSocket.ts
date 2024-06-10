@@ -90,7 +90,7 @@ export class whatsappSocket {
         isConnected: false,
         phoneNumber: "",
         qrcode: "",
-        needRestartSocket: true
+        needRestart: true
       }
     }
     if(this.qrcode === "") {
@@ -98,14 +98,14 @@ export class whatsappSocket {
         isConnected: true,
         phoneNumber: this.phoneNumber,
         qrcode: "",
-        needRestartSocket: false
+        needRestart: false
       }
     }
     return {
       isConnected: false,
       phoneNumber: "",
       qrcode: this.qrcode,
-      needRestartSocket: false
+      needRestart: false
     }
   }
 }
