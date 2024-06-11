@@ -4,6 +4,7 @@ import bodyParser from 'body-parser'
 
 import * as qrController from './controllers/qrController'
 import * as messageController from './controllers/messageController'
+import * as statusController from './controllers/statusController'
 
 const app = express()
 
@@ -18,5 +19,6 @@ const exposeWhatsappSocket = (req: Request, res: Response, next: NextFunction) =
 
 app.get('/qr', exposeWhatsappSocket ,qrController.getQR)
 app.post('/message', exposeWhatsappSocket, messageController.sendTextMessage)
+app.get('/status', exposeWhatsappSocket, statusController.getStatus)
 
 export default app

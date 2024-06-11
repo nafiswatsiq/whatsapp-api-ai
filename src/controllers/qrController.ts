@@ -35,8 +35,7 @@ export const getQR = async (req: Request, res: Response) => {
     if(status?.isConnected) {
       res.status(400).json({ 
         error: true,
-        message: 'Anda sudah terhubung',
-        phoneNumber: req.wa?.phoneNumber
+        status
       })
       return
     }

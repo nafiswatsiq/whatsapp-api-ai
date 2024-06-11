@@ -1,4 +1,4 @@
-import makeWASocket, { useMultiFileAuthState, DisconnectReason, fetchLatestBaileysVersion, Browsers, delay, AuthenticationState, AnyMessageContent } from "@whiskeysockets/baileys";
+import makeWASocket, { useMultiFileAuthState, DisconnectReason, fetchLatestBaileysVersion, Browsers, delay, AuthenticationState, AnyMessageContent, WAMessage, MessageUpsertType } from "@whiskeysockets/baileys";
 import { Boom } from "@hapi/boom"
 import path from 'path';
 import * as fs from 'fs'
@@ -66,6 +66,14 @@ export class whatsappSocket {
     })
   
     socket.ev.on('creds.update', saveCreds)
+
+    socket.ev.on('messages.upsert', async ({ messages: WAMessage, type: MessageUpsertType }) => {
+      console.log('got messages', WAMessage, MessageUpsertType)
+    })
+
+    socket.ev.on('groups.upsert', async ({  }) => {
+
+    })
     
     return socket
   }
