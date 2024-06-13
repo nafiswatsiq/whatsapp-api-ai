@@ -5,47 +5,47 @@ export const getQR = async (req: Request, res: Response) => {
   const id = req.params.id
   const wa = req.wa[id]
 
-  const getQRCode = async (): Promise<string | null> => {
-    return new Promise((resolve, reject) => {
-      QRCode.toDataURL(wa!.qrcode, (err: Error | null | undefined, url: string) => {
-        if(err) {
-          console.error(err)
-          reject(null)
-        }else{
-          resolve(url)
-        }
-      })
-    })
-  }
-
   try {
-    const qrUrl = await new Promise<string | null>((resolve, reject) => {
-      const interval = setInterval(async () => {
-        if (wa.qrcode) {
+    await new Promise<void>((resolve, reject) => {
+      const interval = setInterval(() => {
+        if (wa.socketReady) {
+          console.log('socket ready: ', wa.socketReady)
           clearInterval(interval)
-          const url = await getQRCode()
-          resolve(url)
+          resolve()
         }
       }, 1000)
-
+    
       setTimeout(() => {
         clearInterval(interval)
-        reject(null)
+        reject(new Error('Timeout waiting for socket to be ready'))
       }, 30000)
     })
 
-    if (qrUrl) {
-      res.json({
+    const status = wa?.getStatus()
+
+    if(status?.isConnected) {
+      res.status(400).json({ 
+        error: true,
+        status
+      })
+      return
+    }
+    
+    QRCode.toDataURL(wa!.qrcode, (err: Error | null | undefined, url: string) => {
+      if(err) {
+        console.error(err)
+        res.status(500).json({ 
+          error: true,
+          message: 'Terjadi kesalahan saat mendapatkan QR Code' 
+        })
+        return
+      }
+      res.json({ 
         error: false,
         message: 'Silahkan scan QR Code untuk terhubung',
-        url: qrUrl
+        url,
       })
-    } else {
-      res.status(500).json({
-        error: true,
-        message: 'Terjadi kesalahan saat mendapatkan QR Code'
-      })
-    }
+    })
 
   } catch (error) {
     console.error(error)
