@@ -17,7 +17,6 @@ export class whatsappSocket {
 
   constructor(id: string) {
     this.id = id
-    // this.init()
   }
 
   async Initialize() {

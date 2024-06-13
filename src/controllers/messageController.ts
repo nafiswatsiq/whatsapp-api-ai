@@ -1,4 +1,3 @@
-import { delay } from '@whiskeysockets/baileys'
 import { Request, Response } from 'express'
 import { body, validationResult } from 'express-validator'
 
