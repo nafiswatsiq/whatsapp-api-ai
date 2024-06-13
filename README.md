@@ -46,16 +46,16 @@ To run this project, you will need to add the following environment variables to
   GET /qr/{id}
 ```
 
-#### Send Text Message
-
-```http
-  POST /message/{id}
-```
-
 #### Check Status Connected
 
 ```http
   GET /status/{id}
+```
+
+#### Send Text Message
+
+```http
+  POST /message/{id}
 ```
 
 | Parameter | Type     | Description                       |
