@@ -1,5 +1,5 @@
 
-# Whatsapp Api
+# Whatsapp Simple Api
 
 Based on [whiskeysockets/baileys](https://github.com/WhiskeySockets/Baileys) project.
 
