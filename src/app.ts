@@ -10,15 +10,30 @@ const app = express()
 
 app.use(bodyParser.json())
 
-const wa = new whatsappSocket()
-wa.Initialize()
 const exposeWhatsappSocket = (req: Request, res: Response, next: NextFunction) => {
-  req.wa = wa
+  req.wa = {}
   next()
 }
 
-app.get('/qr', exposeWhatsappSocket ,qrController.getQR)
-app.post('/message', exposeWhatsappSocket, messageController.sendTextMessage)
-app.get('/status', exposeWhatsappSocket, statusController.getStatus)
+app.get('/qr/:id', exposeWhatsappSocket, (req, res, next) => {
+  const id = req.params.id
+  req.wa[id] = new whatsappSocket(id)
+  req.wa[id].Initialize()
+  next()
+}, qrController.getQR)
+
+app.post('/message/:id', exposeWhatsappSocket, (req, res, next) => {
+  const id = req.params.id
+  req.wa[id] = new whatsappSocket(id)
+  req.wa[id].Initialize()
+  next()
+}, messageController.sendTextMessage)
+
+app.get('/status/:id', exposeWhatsappSocket, (req, res, next) => {
+  const id = req.params.id
+  req.wa[id] = new whatsappSocket(id)
+  req.wa[id].Initialize()
+  next()
+}, statusController.getStatus)
 
 export default app

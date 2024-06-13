@@ -12,8 +12,11 @@ export class whatsappSocket {
   state: AuthenticationState | null = null
   saveCreds: any
   needRestartSocket: boolean = false
+  id: string = ""
+  socketReady: boolean = false
 
-  constructor() {
+  constructor(id: string) {
+    this.id = id
     // this.init()
   }
 
@@ -24,8 +27,9 @@ export class whatsappSocket {
   async createNewSocket() {
     const { version, isLatest } = await fetchLatestBaileysVersion()
     console.log(`using WA v${version.join('.')}, isLatest: ${isLatest}`)
+    console.log('ID User: ', this.id)
     
-    const { state, saveCreds } = await useMultiFileAuthState(AUTH_FILE_LOCATION);
+    const { state, saveCreds } = await useMultiFileAuthState(`${AUTH_FILE_LOCATION}-${this.id}`);
     this.state = state
     this.saveCreds = saveCreds
 
@@ -45,16 +49,18 @@ export class whatsappSocket {
       console.log('connection update', connection, lastDisconnect, qr, isNewLogin)
       if (qr !== undefined) {
         this.qrcode = qr as string
+        this.socketReady = true
       }
 
       if (connection === 'close') {
         const shouldReconnect = (lastDisconnect?.error as Boom)?.output?.statusCode !== DisconnectReason.loggedOut
+        this.socketReady = false
         console.log('connection closed due to ', lastDisconnect?.error, ', reconnecting ', shouldReconnect);
   
         if (shouldReconnect) {
-          this.sock = await this.createNewSocket()
+          // this.sock = await this.createNewSocket()
         } else {
-          fs.rmSync(AUTH_FILE_LOCATION, { force: true, recursive: true })
+          fs.rmSync(`${AUTH_FILE_LOCATION}-${this.id}`, { force: true, recursive: true })
           this.needRestartSocket = true
           console.log('connection closed due to ', lastDisconnect?.error, ', reconnecting ', shouldReconnect);
         }
@@ -62,6 +68,7 @@ export class whatsappSocket {
         console.log('opened connection')
         this.phoneNumber = FormatToPhoneNumber(this.state?.creds?.me?.id as string | null | undefined)
         this.qrcode = ""
+        this.socketReady = true
       }
     })
   
