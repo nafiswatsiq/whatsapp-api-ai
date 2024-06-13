@@ -1,5 +1,5 @@
 
-# Whatsapp Api
+# Whatsapp Simple Api
 
 The Whatsapp API multi account allows users to manage multiple Whatsapp accounts
 using a single application. This feature is useful for individuals or businesses
