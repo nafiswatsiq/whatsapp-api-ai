@@ -10,6 +10,9 @@ const app = express()
 
 app.use(bodyParser.json())
 
+const wa = new whatsappSocket('default')
+wa.Initialize()
+
 const exposeWhatsappSocket = (req: Request, res: Response, next: NextFunction) => {
   req.wa = {}
   next()

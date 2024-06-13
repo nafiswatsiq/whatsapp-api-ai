@@ -35,7 +35,7 @@ export class whatsappSocket {
     var socket = makeWASocket({
       version,
       auth: state,
-      printQRInTerminal: true,
+      printQRInTerminal: false,
       browser: Browsers.macOS('Desktop'),
       getMessage: async (key) => {
         return { conversation: { jid: key } } as any
@@ -44,8 +44,8 @@ export class whatsappSocket {
   
     socket.ev.on('connection.update', async (update) => {
       const { connection, lastDisconnect, qr, isNewLogin } = update
-  
       console.log('connection update', connection, lastDisconnect, qr, isNewLogin)
+
       if (qr !== undefined) {
         this.qrcode = qr as string
         this.socketReady = true
@@ -57,11 +57,13 @@ export class whatsappSocket {
         console.log('connection closed due to ', lastDisconnect?.error, ', reconnecting ', shouldReconnect);
   
         if (shouldReconnect) {
-          // this.sock = await this.createNewSocket()
+          if (this.needRestartSocket) {
+            this.sock = await this.createNewSocket()
+          }
         } else {
           fs.rmSync(`${AUTH_FILE_LOCATION}-${this.id}`, { force: true, recursive: true })
           this.needRestartSocket = true
-          console.log('connection closed due to ', lastDisconnect?.error, ', reconnecting ', shouldReconnect);
+          console.log('Connection closed. You are logged out.')
         }
       } else if (connection === 'open') {
         console.log('opened connection')
