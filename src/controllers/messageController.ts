@@ -22,8 +22,15 @@ export const sendTextMessage = async (req: Request, res: Response) => {
   if (!errors.isEmpty()) {
     return res.status(400).json({ 
       error: true, 
-      status: 'failed',
       message: errors.array() 
+    })
+  }
+
+  const status = req.wa?.getStatus()
+  if(!status?.isConnected) {
+    return res.status(400).json({ 
+      error: true,
+      message: 'Koneksi ke WhatsApp belum terhubung'
     })
   }
 
@@ -34,6 +41,6 @@ export const sendTextMessage = async (req: Request, res: Response) => {
 
   return res.status(200).json({ 
       error: false, 
-      status: 'success',
+      message: 'Pesan berhasil dikirim'
     })
 }
