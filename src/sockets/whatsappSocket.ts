@@ -3,6 +3,9 @@ import { Boom } from "@hapi/boom"
 import path from 'path';
 import * as fs from 'fs'
 import { FormatToPhoneNumber, FormatToWhatsappJid } from "../utils/formatter";
+import { dbConnect } from "../config/connection";
+import { IMessage, messageModel } from "../models/messageModel";
+
 const AUTH_FILE_LOCATION = '../../data/session'
 
 export class whatsappSocket {
@@ -19,13 +22,14 @@ export class whatsappSocket {
 
   async Initialize() {
     this.sock = await this.createNewSocket()
+    await dbConnect(process.env.MONGODB_URL)
   }
 
   async createNewSocket() {
     const { version, isLatest } = await fetchLatestBaileysVersion()
     console.log(`using WA v${version.join('.')}, isLatest: ${isLatest}`)
     
-    const { state, saveCreds } = await useMultiFileAuthState(AUTH_FILE_LOCATION);
+    const { state, saveCreds } = await useMultiFileAuthState(path.join(__dirname, `${AUTH_FILE_LOCATION}`))
     this.state = state
     this.saveCreds = saveCreds
 
@@ -49,14 +53,14 @@ export class whatsappSocket {
 
       if (connection === 'close') {
         const shouldReconnect = (lastDisconnect?.error as Boom)?.output?.statusCode !== DisconnectReason.loggedOut
-        console.log('connection closed due to ', lastDisconnect?.error, ', reconnecting ', shouldReconnect);
+        console.log('connection closed due to ', lastDisconnect?.error, ', reconnecting ', shouldReconnect)
   
         if (shouldReconnect) {
           this.sock = await this.createNewSocket()
         } else {
-          fs.rmSync(AUTH_FILE_LOCATION, { force: true, recursive: true })
+          fs.rmSync(path.join(__dirname, `${AUTH_FILE_LOCATION}`), { force: true, recursive: true })
           this.needRestartSocket = true
-          console.log('connection closed due to ', lastDisconnect?.error, ', reconnecting ', shouldReconnect);
+          console.log('connection closed due to ', lastDisconnect?.error, ', reconnecting ', shouldReconnect)
         }
       } else if (connection === 'open') {
         console.log('opened connection')
@@ -67,8 +71,21 @@ export class whatsappSocket {
   
     socket.ev.on('creds.update', saveCreds)
 
-    socket.ev.on('messages.upsert', async ({ messages: WAMessage, type: MessageUpsertType }) => {
-      console.log('got messages', WAMessage, MessageUpsertType)
+    socket.ev.on('messages.upsert', async (m) => {
+      const message = m.messages[0]
+      
+      if (!message.key.fromMe) {
+        console.log('got messages', message)
+
+        const newMessage = new messageModel({
+          sender: message.key.remoteJid,
+          recipient: message.key.fromMe ? message.key.remoteJid : message.key.participant,
+          message: message.message?.conversation as string || '',
+          timestamp: new Date(message.messageTimestamp as number * 1000)
+        })
+        await messageModel.create(newMessage)
+        console.log('Pesan masuk disimpan ke database')
+      }
     })
 
     socket.ev.on('groups.upsert', async ({  }) => {
