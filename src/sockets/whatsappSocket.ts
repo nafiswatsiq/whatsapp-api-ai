@@ -1,10 +1,12 @@
-import makeWASocket, { useMultiFileAuthState, DisconnectReason, fetchLatestBaileysVersion, Browsers, delay, AuthenticationState, AnyMessageContent, WAMessage, MessageUpsertType } from "@whiskeysockets/baileys";
+import makeWASocket, { useMultiFileAuthState, DisconnectReason, fetchLatestBaileysVersion, Browsers, delay, AuthenticationState, AnyMessageContent, downloadMediaMessage } from "@whiskeysockets/baileys";
 import { Boom } from "@hapi/boom"
 import path from 'path';
 import * as fs from 'fs'
-import { FormatToPhoneNumber, FormatToWhatsappJid } from "../utils/formatter";
+import { FormatStandardPhoneNumber, FormatToPhoneNumber, FormatToWhatsappJid } from "../utils/formatter";
 import { dbConnect } from "../config/connection";
-import { IMessage, messageModel } from "../models/messageModel";
+import { messageModel } from "../models/messageModel";
+import logger from "../utils/logger"
+import { messageService } from "../services/messageService";
 
 const AUTH_FILE_LOCATION = '../../data/session'
 
@@ -73,23 +75,11 @@ export class whatsappSocket {
 
     socket.ev.on('messages.upsert', async (m) => {
       const message = m.messages[0]
-      
-      if (!message.key.fromMe) {
-        console.log('got messages', message)
-
-        const newMessage = new messageModel({
-          sender: message.key.remoteJid,
-          recipient: message.key.fromMe ? message.key.remoteJid : message.key.participant,
-          message: message.message?.conversation as string || '',
-          timestamp: new Date(message.messageTimestamp as number * 1000)
-        })
-        await messageModel.create(newMessage)
-        console.log('Pesan masuk disimpan ke database')
-      }
+      await messageService(message, this.phoneNumber)
     })
 
-    socket.ev.on('groups.upsert', async ({  }) => {
-
+    socket.ev.on('groups.upsert', async (g) => {
+      console.log('got groups', g)
     })
     
     return socket
