@@ -8,7 +8,6 @@ import { sendTextMessage, sock } from "../sockets/whatsappSocket"
 import { aiMessageService } from "./aiMessageService"
 
 export const messageService = async (message: any, phoneNumber: string) => {
-
   try {
       const isGroup = message.key.remoteJid?.endsWith('@g.us') == true ? true : false
       const messageType = Object.keys (message.message as Object)[0]
@@ -28,10 +27,10 @@ export const messageService = async (message: any, phoneNumber: string) => {
           })
           await messageModel.create(newMessage)
 
-          if (message.message?.conversation.includes('!tanya')) {
+          if (message.message?.conversation.includes(process.env.PROMPT_KEY)) {
             await sock.readMessages([message.key])
 
-            const reply = await aiMessageService(message.message?.conversation)
+            const reply = await aiMessageService(message.message?.conversation, '')
 
             await sendTextMessage(FormatStandardPhoneNumber(message.key.remoteJid), { text: reply })
           }
@@ -50,7 +49,15 @@ export const messageService = async (message: any, phoneNumber: string) => {
               path.join(__dirname,`../../public/images/${imageName}`),
               buffer
             )
+
+          if (message.message?.conversation.includes(process.env.PROMPT_KEY)) {
+            await sock.readMessages([message.key])
           
+            const reply = await aiMessageService(message.message?.conversation, imageName)
+          
+            await sendTextMessage(FormatStandardPhoneNumber(message.key.remoteJid), { text: reply })
+          }
+
           logger.info('got image', message)
         }
       }

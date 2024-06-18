@@ -36,5 +36,5 @@ export const FormatPromt = (message: string | null | undefined) : string => {
       return "";
   }
   
-  return message.replace('!tanya', '')
+  return message.replace(process.env.PROMPT_KEY as string, '')
 }
