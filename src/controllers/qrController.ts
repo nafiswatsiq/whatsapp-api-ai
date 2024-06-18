@@ -1,10 +1,11 @@
 import { delay } from '@whiskeysockets/baileys'
 import { Request, Response } from 'express'
 import QRCode from 'qrcode'
+import { getStatus, Initialize, qrcode } from '../sockets/whatsappSocket'
 
 export const getQR = async (req: Request, res: Response) => {
   const getQRCode = async () => {
-    QRCode.toDataURL(req.wa!.qrcode, (err: Error | null | undefined, url: string) => {
+    QRCode.toDataURL(qrcode, (err: Error | null | undefined, url: string) => {
       if(err) {
         console.error(err)
         res.status(500).json({ 
@@ -21,10 +22,10 @@ export const getQR = async (req: Request, res: Response) => {
     })
   }
   try {
-    const status = req.wa?.getStatus()
+    const status = getStatus()
 
     if(status?.needRestart) {
-      req.wa?.Initialize()
+      Initialize()
       
       setTimeout(() => {
         getQRCode()

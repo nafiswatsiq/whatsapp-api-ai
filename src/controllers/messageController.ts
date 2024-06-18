@@ -1,5 +1,6 @@
 import { Request, Response } from 'express'
 import { body, validationResult } from 'express-validator'
+import { getStatus, sendTextMessage as sendMessage } from '../sockets/whatsappSocket'
 
 export const sendTextMessage = async (req: Request, res: Response) => {
   await body('phoneNumber')
@@ -26,7 +27,7 @@ export const sendTextMessage = async (req: Request, res: Response) => {
     })
   }
 
-  const status = req.wa?.getStatus()
+  const status = getStatus()
   if(!status?.isConnected) {
     return res.status(400).json({ 
       error: true,
@@ -37,7 +38,7 @@ export const sendTextMessage = async (req: Request, res: Response) => {
   const phoneNumber = req.body.phoneNumber
   const message = req.body.message
 
-  req.wa!.sendTextMessage(phoneNumber, message)
+  sendMessage(phoneNumber, message)
 
   return res.status(200).json({ 
       error: false, 

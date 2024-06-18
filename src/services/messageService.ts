@@ -4,10 +4,13 @@ import { FormatStandardPhoneNumber } from "../utils/formatter"
 import fs from 'fs'
 import path from 'path'
 import logger from "../utils/logger"
+import { sendTextMessage, sock } from "../sockets/whatsappSocket"
+import { aiMessageService } from "./aiMessageService"
 
 export const messageService = async (message: any, phoneNumber: string) => {
+
   try {
-    const isGroup = message.key.remoteJid?.endsWith('@g.us') == true ? true : false
+      const isGroup = message.key.remoteJid?.endsWith('@g.us') == true ? true : false
       const messageType = Object.keys (message.message as Object)[0]
       
       if (!message.key.fromMe) {
@@ -24,6 +27,14 @@ export const messageService = async (message: any, phoneNumber: string) => {
             timestamp: new Date(message.messageTimestamp as number * 1000)
           })
           await messageModel.create(newMessage)
+
+          if (message.message?.conversation.includes('!tanya')) {
+            await sock.readMessages([message.key])
+
+            const reply = await aiMessageService(message.message?.conversation)
+
+            await sendTextMessage(FormatStandardPhoneNumber(message.key.remoteJid), { text: reply })
+          }
           
         } else if ( messageType === 'imageMessage') {
           const imageName = `${message.key.id}.jpg`

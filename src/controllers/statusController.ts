@@ -1,7 +1,8 @@
 import { Request, Response } from 'express'
+import { getStatus as Status } from '../sockets/whatsappSocket'
 
 export const getStatus = async (req: Request, res: Response) => {
-  const status = req.wa?.getStatus()
+  const status = Status()
   if(status) {
     res.json({ 
       error: false,

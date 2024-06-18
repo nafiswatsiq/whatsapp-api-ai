@@ -1,5 +1,5 @@
 import express, { Request, Response, NextFunction } from 'express'
-import { whatsappSocket } from './sockets/whatsappSocket'
+import { Initialize } from './sockets/whatsappSocket'
 import bodyParser from 'body-parser'
 
 import * as qrController from './controllers/qrController'
@@ -10,15 +10,10 @@ const app = express()
 
 app.use(bodyParser.json())
 
-const wa = new whatsappSocket()
-wa.Initialize()
-const exposeWhatsappSocket = (req: Request, res: Response, next: NextFunction) => {
-  req.wa = wa
-  next()
-}
+Initialize()
 
-app.get('/qr', exposeWhatsappSocket ,qrController.getQR)
-app.post('/message', exposeWhatsappSocket, messageController.sendTextMessage)
-app.get('/status', exposeWhatsappSocket, statusController.getStatus)
+app.get('/qr', qrController.getQR)
+app.post('/message', messageController.sendTextMessage)
+app.get('/status', statusController.getStatus)
 
 export default app
