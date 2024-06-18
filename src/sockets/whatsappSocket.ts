@@ -42,24 +42,24 @@ async function createNewSocket() {
   socket.ev.on('connection.update', async (update) => {
     const { connection, lastDisconnect, qr, isNewLogin } = update
     
-    console.log('connection update', connection, lastDisconnect, qr, isNewLogin)
+    logger.info('connection update', connection, lastDisconnect, qr, isNewLogin)
     if (qr !== undefined) {
       qrcode = qr as string
     }
   
     if (connection === 'close') {
       const shouldReconnect = (lastDisconnect?.error as Boom)?.output?.statusCode !== DisconnectReason.loggedOut
-      console.log('connection closed due to ', lastDisconnect?.error, ', reconnecting ', shouldReconnect)
+      logger.info('connection closed due to ', lastDisconnect?.error, ', reconnecting ', shouldReconnect)
     
       if (shouldReconnect) {
         sock = await createNewSocket()
       } else {
         fs.rmSync(path.join(__dirname, `${AUTH_FILE_LOCATION}`), { force: true, recursive: true })
         needRestartSocket = true
-        console.log('connection closed due to ', lastDisconnect?.error, ', reconnecting ', shouldReconnect)
+        logger.info('connection closed due to ', lastDisconnect?.error, ', reconnecting ', shouldReconnect)
       }
     } else if (connection === 'open') {
-      console.log('opened connection')
+      logger.info('opened connection')
       phoneNumber = FormatToPhoneNumber(state?.creds?.me?.id as string | null | undefined)
       qrcode = ""
     }
@@ -73,14 +73,14 @@ async function createNewSocket() {
   })
 
   socket.ev.on('groups.upsert', async (g) => {
-    console.log('got groups', g)
+    logger.info('got groups', g)
   })
   
   return socket
 }
 
 export async function sendTextMessage(phoneNumber: string | null | undefined, message: AnyMessageContent) {
-  console.log('send message to', phoneNumber, message)
+  logger.info('send message to', phoneNumber, message)
 
   const jid = FormatToWhatsappJid(phoneNumber)
 
