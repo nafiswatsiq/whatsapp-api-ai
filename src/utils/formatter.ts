@@ -30,3 +30,11 @@ export const FormatToWhatsappJid = (number: string | null | undefined) : string 
   }
   return number;
 }
+
+export const FormatPromt = (message: string | null | undefined) : string => {
+  if(message == undefined || message == null || message == ''){
+      return "";
+  }
+  
+  return message.replace('!tanya', '')
+}
