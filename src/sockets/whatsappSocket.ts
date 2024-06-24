@@ -90,8 +90,11 @@ export async function sendTextMessage(phoneNumber: string | null | undefined, me
   await delay(2000)
   await sock.sendPresenceUpdate('available', jid)
   await delay(100)
+  await sock.sendPresenceUpdate('paused', jid)
+  
   await sock.sendMessage(jid, message)
 }
+
 export function getStatus() {
   if(needRestartSocket) {
     return {

@@ -1,4 +1,4 @@
-import { downloadMediaMessage } from "@whiskeysockets/baileys"
+import { delay, downloadMediaMessage } from "@whiskeysockets/baileys"
 import { messageModel } from "../models/messageModel"
 import { FormatStandardPhoneNumber } from "../utils/formatter"
 import fs from 'fs'
@@ -29,8 +29,13 @@ export const messageService = async (message: any, phoneNumber: string) => {
 
           if (message.message?.conversation.includes(process.env.PROMPT_KEY)) {
             await sock.readMessages([message.key])
+            await sock.presenceSubscribe(message.key.remoteJid)
+		        await delay(500)
+            await sock.sendPresenceUpdate('composing', message.key.remoteJid)
 
             const reply = await aiMessageService(message.message?.conversation, '')
+            
+            await sock.sendPresenceUpdate('paused', message.key.remoteJid)
 
             await sendTextMessage(FormatStandardPhoneNumber(message.key.remoteJid), { text: reply })
           }
@@ -50,11 +55,16 @@ export const messageService = async (message: any, phoneNumber: string) => {
               buffer
             )
 
-          if (message.message?.conversation.includes(process.env.PROMPT_KEY)) {
+          if (message.message?.imageMessage.caption.includes(process.env.PROMPT_KEY)) {
             await sock.readMessages([message.key])
-          
-            const reply = await aiMessageService(message.message?.conversation, imageName)
-          
+            await sock.presenceSubscribe(message.key.remoteJid)
+		        await delay(500)
+            await sock.sendPresenceUpdate('composing', message.key.remoteJid)
+
+            const reply = await aiMessageService(message.message?.imageMessage.caption, imageName)
+
+            await sock.sendPresenceUpdate('paused', message.key.remoteJid)
+
             await sendTextMessage(FormatStandardPhoneNumber(message.key.remoteJid), { text: reply })
           }
 
