@@ -3,4 +3,3 @@ node_modules/
 data/*
 build/
 logs/
-public/images/*
