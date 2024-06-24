@@ -5,10 +5,12 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc",
+    "build": "rimraf build && tsc",
     "start:dev": "nodemon --ignore data/ src/server.ts",
     "dev": "nodemon --exec ts-node --ignore data/ src/server.ts",
-    "lint": "eslint . - ext .ts"
+    "lint": "eslint . - ext .ts",
+    "ts.check": "tsc --project tsconfig.json",
+    "add-build": "git add build"
   },
   "keywords": [],
   "author": "",
@@ -23,8 +25,10 @@
     "express-validator": "^7.1.0",
     "mongoose": "^8.4.1",
     "openai": "^4.51.0",
+    "pre-commit": "^1.2.2",
     "qrcode": "^1.5.3",
     "qrcode-terminal": "^0.12.0",
+    "rimraf": "^5.0.7",
     "save-dev": "^0.0.1-security",
     "winston": "^3.13.0"
   },
