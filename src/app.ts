@@ -13,7 +13,7 @@ app.use(bodyParser.json())
 Initialize()
 
 app.get('/', (_req: Request, res: Response) => {
-  return res.send('Hello There! I am WhatsApp Bot')
+  return res.send('Hello There! I am WhatsApp Bot.')
 })
 app.get('/qr', qrController.getQR)
 app.post('/message', messageController.sendTextMessage)
