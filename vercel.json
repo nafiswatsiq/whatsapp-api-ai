@@ -3,10 +3,9 @@
   "outputDirectory": "dist",
   "builds": [
     {
-      "src": "package.json",
+      "src": "dist/server.js",
       "use": "@vercel/node",
       "config": {
-        "buildCommand": "npm run build", 
         "includeFiles": ["dist/**"]
       }
     }
