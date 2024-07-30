@@ -11,7 +11,7 @@
     "start:dist": "node dist/src/server.js",
     "dev": "nodemon --exec ts-node --ignore data/ src/server.ts",
     "lint": "eslint . - ext .ts",
-    "vercel-build": "hello"
+    "vercel-build": "echo hello"
   },
   "keywords": [],
   "author": "",
