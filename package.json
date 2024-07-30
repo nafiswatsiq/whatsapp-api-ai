@@ -6,11 +6,12 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "rimraf dist && tsc",
-    "start": "nodemon src/index.js",
-    "start:dev": "nodemon --ignore data/ src/index.ts",
-    "dev": "nodemon --exec ts-node --ignore data/ src/index.ts",
+    "start": "nodemon src/server.js",
+    "start:dev": "nodemon --ignore data/ src/server.ts",
+    "dev": "nodemon --exec ts-node --ignore data/ src/server.ts",
     "lint": "eslint . - ext .ts",
     "vercel-build": "rimraf dist && tsc",
+    "ts.check": "tsc --project tsconfig.json",
     "add-build": "git add dist"
   },
   "keywords": [],
@@ -44,6 +45,7 @@
     "typescript": "^5.4.5"
   },
   "pre-commit": [
+    "ts.check",
     "build",
     "add-build"
   ]
